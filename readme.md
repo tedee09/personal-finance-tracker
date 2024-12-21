@@ -1,6 +1,6 @@
 ## Petunjuk untuk github colaboration
 
-https://youtu.be/GumqC3s6Trw?si=8s7yPfys7FIGzOdT
+# https://youtu.be/GumqC3s6Trw?si=8s7yPfys7FIGzOdT
 
 ## Panduan untuk menjalankan program
 
@@ -19,9 +19,7 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek ini di lingkungan lokal A
 ## Kalau Mau Ngetes Kodenya Sendiri 
 ### Gunakan akun berikut untuk mencoba masing-masing peran:
 
-```
-Username: tes@gmail.com
-Password: testes
-```
+### Username: `tes@gmail.com`
+### Password: `testes`
 
 # KALAU ADA YANG MAU DI TANYAIN CHAT AJA, BATAS NANYA SEBELUM H-8 DEADLINE, LEBIH DARI ITU URUS SENDIRI!!!
