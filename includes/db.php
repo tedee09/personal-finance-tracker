@@ -1,0 +1,14 @@
+<?php
+// Database connection
+$host = 'localhost';
+$dbname = 'personal_finance_tracker_db';
+$user = 'root'; // Sesuaikan dengan username MySQL Anda
+$password = ''; // Sesuaikan dengan password MySQL Anda
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $user, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
+?>
