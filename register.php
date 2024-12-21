@@ -1,5 +1,5 @@
 <?php
-require 'includes/register_logic.php'; // Menghubungkan dengan logika register
+require 'register_logic.php'; // Menghubungkan dengan logika register
 ?>
 
 <!DOCTYPE html>

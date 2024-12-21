@@ -1,5 +1,5 @@
 <?php
-require 'includes/login_logic.php'; // Menghubungkan dengan logika login
+require 'login_logic.php'; // Menghubungkan dengan logika login
 ?>
 
 <!DOCTYPE html>
