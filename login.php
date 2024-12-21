@@ -10,6 +10,8 @@ require 'includes/login_logic.php'; // Menghubungkan dengan logika login
     <title>Login</title>
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style/css/bootstrap.css">
+    <link rel="stylesheet" href="style/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
