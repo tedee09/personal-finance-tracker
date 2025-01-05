@@ -1,4 +1,5 @@
 <?php
+//tedy
 require 'db/db.php';
 session_start();
 

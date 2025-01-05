@@ -1,4 +1,5 @@
 <?php
+//tedy
 require 'db/db.php';
 
 $register_error = ""; // Untuk menyimpan pesan error atau sukses

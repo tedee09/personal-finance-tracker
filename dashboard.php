@@ -1,14 +1,29 @@
 <?php
 session_start();
 
-// Cek apakah user sudah login
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// Ambil informasi user dari session
+$user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
+
+require_once 'db/db.php'; // Ensure you have the database connection
+
+// Calculate totals for the past month
+$start_date = date('Y-m-d', strtotime('-1 month'));
+$end_date = date('Y-m-d');
+
+$total_income_query = mysqli_query($koneksi, "SELECT SUM(amount) as total_income FROM transactions WHERE user_id = $user_id AND type_id = 1 AND transaction_date BETWEEN '$start_date' AND '$end_date'");
+$total_expense_query = mysqli_query($koneksi, "SELECT SUM(amount) as total_expense FROM transactions WHERE user_id = $user_id AND type_id = 2 AND transaction_date BETWEEN '$start_date' AND '$end_date'");
+
+if (!$total_income_query || !$total_expense_query) {
+    die('Query Error: ' . mysqli_error($koneksi));
+}
+
+$total_income = mysqli_fetch_assoc($total_income_query)['total_income'] ?? 0;
+$total_expense = mysqli_fetch_assoc($total_expense_query)['total_expense'] ?? 0;
 ?>
 
 <!DOCTYPE html>
@@ -17,13 +32,9 @@ $username = $_SESSION['username'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style/css/bootstrap.css">
-    <link rel="stylesheet" href="style/css/bootstrap.min.css">
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="#">Personal Finance Tracker</a>
@@ -43,7 +54,6 @@ $username = $_SESSION['username'];
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-12">
@@ -51,12 +61,27 @@ $username = $_SESSION['username'];
                     <div class="card-header bg-primary text-white">
                         <h3 class="text-center">Dashboard</h3>
                     </div>
+                    <div class="mt-5">
+                            <h5 class="text-center">Financial Summary for the Last Month</h5>
+                            <div class="d-flex justify-content-around mt-4">
+                                <div>
+                                    <h5>Total Income</h5>
+                                    <p>Rp <?php echo number_format($total_income, 2, ',', '.'); ?></p>
+                                </div>
+                                <div>
+                                    <h5>Total Expense</h5>
+                                    <p>Rp <?php echo number_format($total_expense, 2, ',', '.'); ?></p>
+                                </div>
+                                </div>
                     <div class="card-body">
-                        <p class="text-center">Welcome to your Personal Finance Tracker dashboard!</p>
                         <div class="d-flex justify-content-around mt-4">
-                            <a href="#" class="btn btn-success btn-lg">Add Income</a>
-                            <a href="#" class="btn btn-danger btn-lg">Add Expense</a>
-                            <a href="#" class="btn btn-secondary btn-lg">View Reports</a>
+                            <a href="add_income.php" class="btn btn-success btn-lg">Add Income</a>
+                            <a href="add_expense.php" class="btn btn-danger btn-lg">Add Expense</a>
+                            <a href="transaction_history.php" class="btn btn-secondary btn-lg">Transaction History</a>
+                            <a href="manage_categories.php" class="btn btn-info btn-lg">Manage Categories</a>
+                        </div>
+                        
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -64,12 +89,10 @@ $username = $_SESSION['username'];
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-primary text-white text-center py-3 mt-5">
         <p class="mb-0">&copy; 2024 Personal Finance Tracker. All rights reserved.</p>
     </footer>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
