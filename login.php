@@ -1,6 +1,6 @@
 <?php
 //tedy
-require 'login_logic.php'; // Menghubungkan dengan logika login
+require 'login_logic.php';
 ?>
 
 <!DOCTYPE html>

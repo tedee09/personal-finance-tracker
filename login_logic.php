@@ -3,7 +3,7 @@
 require 'db/db.php';
 session_start();
 
-$login_error = ""; // Untuk menyimpan pesan error
+$login_error = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = mysqli_real_escape_string($koneksi, $_POST['email']);

@@ -2,7 +2,7 @@
 //tedy
 require 'db/db.php';
 
-$register_error = ""; // Untuk menyimpan pesan error atau sukses
+$register_error = ""; 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = mysqli_real_escape_string($koneksi, $_POST['username']);

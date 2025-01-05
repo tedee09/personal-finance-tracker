@@ -1,6 +1,6 @@
 <?php
 //tedy
-require 'register_logic.php'; // Menghubungkan dengan logika register
+require 'register_logic.php';
 ?>
 
 <!DOCTYPE html>
