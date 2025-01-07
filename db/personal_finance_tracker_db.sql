@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Jan 06, 2025 at 06:45 AM
+-- Host: 127.0.0.1
+-- Generation Time: Jan 07, 2025 at 04:57 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -40,8 +40,8 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `user_id`, `type_id`, `name`, `created_at`) VALUES
-(3, 1, 1, 'Salary', '2025-01-06 05:11:35'),
-(4, 1, 2, 'Investing', '2025-01-06 05:11:42');
+(1, 1, 1, 'salary', '2025-01-07 15:32:54'),
+(2, 1, 2, 'investing', '2025-01-07 15:33:05');
 
 -- --------------------------------------------------------
 
@@ -85,22 +85,23 @@ CREATE TABLE `reports` (
 
 CREATE TABLE `transactions` (
   `id` int(11) NOT NULL,
-  `date` date NOT NULL,
-  `type` varchar(50) NOT NULL,
-  `category` enum('income','expense') NOT NULL,
-  `amount` decimal(20,3) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `category_id` int(11) DEFAULT NULL,
+  `type_id` int(11) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
   `description` text DEFAULT NULL,
-  `category_id` int(11) DEFAULT NULL
+  `transaction_date` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `transactions`
 --
 
-INSERT INTO `transactions` (`id`, `date`, `type`, `category`, `amount`, `description`, `category_id`) VALUES
-(8, '2025-01-05', 'Salary', 'income', 4500000.000, 'Gaji TDK', NULL),
-(9, '2025-01-06', 'Investing', 'expense', 2500000.000, 'Crypto', NULL),
-(10, '2025-01-06', 'Investing', 'expense', 2000000.000, 'Bisnis', NULL);
+INSERT INTO `transactions` (`id`, `user_id`, `category_id`, `type_id`, `amount`, `description`, `transaction_date`, `created_at`) VALUES
+(1, 1, NULL, 1, 4500000.00, 'Gaji TDK', '2025-01-25', '2025-01-07 15:48:54'),
+(2, 1, NULL, 2, 2500000.00, 'Crypto', '2025-01-07', '2025-01-07 15:56:25'),
+(3, 1, NULL, 2, 2000000.00, 'Bisnis', '2025-01-07', '2025-01-07 15:57:03');
 
 -- --------------------------------------------------------
 
@@ -143,7 +144,8 @@ INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `created_at`) V
 (1, 'tes', 'tes@gmail.com', '$2y$10$HdOEoqYyszcKv7UByGPjleQonceHEdtnr.o6V8LEUnQhqnFYro7YG', '2024-12-21 04:47:12'),
 (2, 'cek', 'cek@gmail.com', '$2y$10$SDdhNPFJPFKYqlgSed7GaetakDjVfkm1ZekmXJhNmmv3XNcotPr2e', '2024-12-21 04:53:35'),
 (3, 'ueshama', 'ueshama@gmail.com', '$2y$10$VNmET5g/HEQxxRah7edvq.0oPO77lAL/0WwFoT9q8CPtScq6aaw8W', '2024-12-21 04:57:35'),
-(4, 'seto_asami', 'setoasami@gmail.com', '$2y$10$tHmA5FbC3OpNcn6zQPnU6upc58pN1ubNF/.E1VUKg/PzmyY9JLKQ.', '2024-12-21 04:59:00');
+(4, 'seto_asami', 'setoasami@gmail.com', '$2y$10$tHmA5FbC3OpNcn6zQPnU6upc58pN1ubNF/.E1VUKg/PzmyY9JLKQ.', '2024-12-21 04:59:00'),
+(5, 'manaka iwami', 'iwami@gmail.com', '$2y$10$jImjL0u8oY9jJgtFO5lMIee2tTRa2ZV1eIGeVl4nzA7TBZ11L/Osm', '2025-01-07 15:22:32');
 
 -- --------------------------------------------------------
 
@@ -190,7 +192,10 @@ ALTER TABLE `reports`
 -- Indexes for table `transactions`
 --
 ALTER TABLE `transactions`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `category_id` (`category_id`),
+  ADD KEY `type_id` (`type_id`);
 
 --
 -- Indexes for table `transaction_types`
@@ -223,7 +228,7 @@ ALTER TABLE `visualizations`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `category_types`
@@ -241,7 +246,7 @@ ALTER TABLE `reports`
 -- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `transaction_types`
@@ -253,7 +258,7 @@ ALTER TABLE `transaction_types`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `visualizations`
@@ -277,6 +282,14 @@ ALTER TABLE `categories`
 --
 ALTER TABLE `reports`
   ADD CONSTRAINT `reports_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `transactions`
+--
+ALTER TABLE `transactions`
+  ADD CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `transactions_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `transactions_ibfk_3` FOREIGN KEY (`type_id`) REFERENCES `transaction_types` (`id`);
 
 --
 -- Constraints for table `visualizations`

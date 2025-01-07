@@ -8,15 +8,15 @@ session_start();
 $message = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $date = $_POST['date'];
+    $transaction_date = $_POST['transaction_date'];
     $type = $_POST['type'];
-    $category = 'income'; // Fixed as "income"
     $amount = $_POST['amount'];
     $description = $_POST['description'];
+    $user_id = $_SESSION['user_id'];
 
     // Insert the transaction into the database
-    $stmt = $koneksi->prepare("INSERT INTO transactions (date, type, category, amount, description) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssds", $date, $type, $category, $amount, $description);
+    $stmt = $koneksi->prepare("INSERT INTO transactions (transaction_date, category_id, type_id, amount, description, user_id) VALUES (?, ?, 1, ?, ?, ?)");
+    $stmt->bind_param("sidss", $transaction_date, $category_id, $amount, $description, $user_id);
 
     if ($stmt->execute()) {
         $message = "Income added successfully!";
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <form action="add_income.php" method="POST" id="incomeForm">
                 <div class="mb-3">
                     <label for="date" class="form-label">Date</label>
-                    <input type="date" class="form-control" id="date" name="date" value="<?php echo $_POST['date'] ?? ''; ?>" required>
+                    <input type="date" class="form-control" id="transaction_date" name="transaction_date" value="<?php echo $_POST['date'] ?? ''; ?>" required>
                 </div>
                 <div class="mb-3">
                     <label for="type" class="form-label">Type</label>

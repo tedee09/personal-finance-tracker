@@ -11,10 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 
 // Handle delete request
 if (isset($_GET['delete_id'])) {
-    $delete_id = $_GET['delete_id'];
-    
-    // Sanitize input to prevent SQL injection
-    $delete_id = intval($delete_id);
+    $delete_id = intval($_GET['delete_id']);
     
     // Delete the transaction
     $delete_query = "DELETE FROM transactions WHERE id = $delete_id";
@@ -28,7 +25,7 @@ if (isset($_GET['delete_id'])) {
 }
 
 // Handle sorting and filtering
-$filter_query = ""; 
+$filter_query = "";
 
 // Date range filter
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -37,29 +34,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $transaction_type = $_POST['transaction_type'] ?? ''; // 'income' or 'expense'
 
     if ($from_date && $to_date) {
-        $filter_query .= " AND date BETWEEN '$from_date' AND '$to_date'";
+        $filter_query .= " AND transaction_date BETWEEN '$from_date' AND '$to_date'";
     }
     if ($transaction_type) {
-        $filter_query .= " AND category = '$transaction_type'"; // Filter by income or expense
+        $filter_query .= " AND type_id = " . ($transaction_type === 'income' ? 1 : 2); // Use type_id for filtering
     }
 }
 
 // Sorting logic (default: by date descending)
-$order_by = "date DESC";
+$order_by = "transaction_date DESC";
 if (isset($_GET['sort_order']) && $_GET['sort_order'] == 'asc') {
-    $order_by = "date ASC";
+    $order_by = "transaction_date ASC";
 }
 
 // Fetch transactions
 $transactions = mysqli_query($koneksi, "
     SELECT 
         id,
-        date, 
+        transaction_date, 
         amount, 
         description, 
-        type,
-        (SELECT name FROM categories WHERE id = category_id) as category_name,
-        category
+        type_id,
+        (SELECT name FROM categories WHERE id = category_id) as category_name
     FROM 
         transactions
     WHERE 
@@ -78,7 +74,6 @@ $categories = mysqli_query($koneksi, "SELECT id, name FROM categories");
 if (!$categories) {
     $_SESSION['error'] = "Error fetching categories. Please try again.";
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -99,7 +94,7 @@ if (!$categories) {
     </style>
 </head>
 <body>
-    <div class="container mt-4">
+<div class="container mt-4">
         <!-- Back to Dashboard Button -->
         <a href="dashboard.php" class="btn btn-secondary mb-4">Back to Dashboard</a>
         
@@ -161,11 +156,11 @@ if (!$categories) {
             </thead>
             <tbody>
                 <?php while ($row = mysqli_fetch_assoc($transactions)): ?>
-                    <tr class="<?php echo $row['category'] == 'income' ? 'income-row' : 'expense-row'; ?>">
-                        <td><?php echo $row['date']; ?></td>
-                        <td><?php echo $row['type']; ?></td>
-                        <td><?php echo ucfirst($row['category']); ?></td> <!-- Shows "Income" or "Expense" -->
-                        <td><?php echo $row['amount']; ?></td>
+                    <tr class="<?php echo $row['type_id'] == 1 ? 'income-row' : 'expense-row'; ?>">
+                        <td><?php echo $row['transaction_date']; ?></td>
+                        <td><?php echo $row['category_name'] ?? 'Uncategorized'; ?></td>
+                        <td><?php echo $row['type_id'] == 1 ? 'Income' : 'Expense'; ?></td>
+                        <td><?php echo number_format($row['amount'], 2, ',', '.'); ?></td>
                         <td><?php echo $row['description']; ?></td>
                         <td>
                             <a href="transaction_history.php?delete_id=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this transaction?')">Delete</a>

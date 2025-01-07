@@ -6,15 +6,15 @@ session_start();
 $message = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $date = $_POST['date'];
-    $type = $_POST['type'];
-    $category = 'expense'; // Fixed as "expense"
+    $transaction_date = $_POST['transaction_date'];  
+    $category_name = $_POST['type'];
     $amount = $_POST['amount'];
-    $description = $_POST['description'];
+    $description = $_POST['description'] ?? '';
+    $user_id = $_SESSION['user_id'];
 
     // Insert the transaction into the database
-    $stmt = $koneksi->prepare("INSERT INTO transactions (date, type, category, amount, description) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssds", $date, $type, $category, $amount, $description);
+    $stmt = $koneksi->prepare("INSERT INTO transactions (transaction_date, category_id, type_id, amount, description, user_id) VALUES (?, ?, 2, ?, ?, ?)");
+    $stmt->bind_param("sidss", $transaction_date, $category_id, $amount, $description, $user_id);
 
     if ($stmt->execute()) {
         $message = "Expense added successfully!";
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 <body>
-    <div class="container">
+<div class="container">
         <div class="form-container mx-auto">
             <h2 class="text-center">Add Expense</h2>
             <?php if ($message): ?>
@@ -62,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
             <form action="add_expense.php" method="POST" id="expenseForm">
                 <div class="mb-3">
-                    <label for="date" class="form-label">Date</label>
-                    <input type="date" class="form-control" id="date" name="date" value="<?php echo $_POST['date'] ?? ''; ?>" required>
+                    <label for="transaction_date" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="transaction_date" name="transaction_date" value="<?php echo $_POST['transaction_date'] ?? ''; ?>" required>
                 </div>
                 <div class="mb-3">
                     <label for="type" class="form-label">Type</label>
