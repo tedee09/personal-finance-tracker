@@ -1,53 +1,84 @@
 <?php
-//arifin
+//Dwi Nur Arifin & Riccy
 require_once 'db/db.php';
 session_start();
 
+// Ensure the user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
-$username = $_SESSION['username'];
-$filter_query = "WHERE t.user_id = $user_id"; 
+// Handle delete request
+if (isset($_GET['delete_id'])) {
+    $delete_id = $_GET['delete_id'];
+    
+    // Sanitize input to prevent SQL injection
+    $delete_id = intval($delete_id);
+    
+    // Delete the transaction
+    $delete_query = "DELETE FROM transactions WHERE id = $delete_id";
+    if (mysqli_query($koneksi, $delete_query)) {
+        $_SESSION['message'] = "Transaction deleted successfully!";
+    } else {
+        $_SESSION['error'] = "Error deleting transaction. Please try again.";
+    }
+    header("Location: transaction_history.php"); // Redirect after delete
+    exit();
+}
 
+// Handle sorting and filtering
+$filter_query = ""; 
+
+// Date range filter
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $from_date = $_POST['from_date'] ?? '';
     $to_date = $_POST['to_date'] ?? '';
-    $type_id = $_POST['type_id'] ?? '';
-    $category_id = $_POST['category_id'] ?? '';
+    $transaction_type = $_POST['transaction_type'] ?? ''; // 'income' or 'expense'
 
     if ($from_date && $to_date) {
-        $filter_query .= " AND t.transaction_date BETWEEN '$from_date' AND '$to_date'";
+        $filter_query .= " AND date BETWEEN '$from_date' AND '$to_date'";
     }
-    if ($type_id) {
-        $filter_query .= " AND t.type_id = $type_id";
-    }
-    if ($category_id) {
-        $filter_query .= " AND t.category_id = $category_id";
+    if ($transaction_type) {
+        $filter_query .= " AND category = '$transaction_type'"; // Filter by income or expense
     }
 }
 
-// Ini kode setelah diperbaiki, disusun yang rapih mas biar ga pegel pas baca, berantakan kali njir
+// Sorting logic (default: by date descending)
+$order_by = "date DESC";
+if (isset($_GET['sort_order']) && $_GET['sort_order'] == 'asc') {
+    $order_by = "date ASC";
+}
+
+// Fetch transactions
 $transactions = mysqli_query($koneksi, "
     SELECT 
-        t.transaction_date, 
-        t.amount, 
-        t.description, 
-        c.name as category_name, 
-        t.type_id 
+        id,
+        date, 
+        amount, 
+        description, 
+        type,
+        (SELECT name FROM categories WHERE id = category_id) as category_name,
+        category
     FROM 
-        transactions t 
-    JOIN 
-        categories c 
-    ON 
-        t.category_id = c.id 
-    $filter_query 
+        transactions
+    WHERE 
+        1 $filter_query
     ORDER BY 
-        t.transaction_date DESC
+        $order_by
 ");
-$categories = mysqli_query($koneksi, "SELECT id, name FROM categories WHERE user_id = $user_id");
+
+if (!$transactions) {
+    $_SESSION['error'] = "Error fetching transactions. Please try again.";
+}
+
+// Fetch categories for the filter dropdown
+$categories = mysqli_query($koneksi, "SELECT id, name FROM categories");
+
+if (!$categories) {
+    $_SESSION['error'] = "Error fetching categories. Please try again.";
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -57,64 +88,88 @@ $categories = mysqli_query($koneksi, "SELECT id, name FROM categories WHERE user
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction History</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .income-row {
+            background-color: #d4edda; /* Light green */
+        }
+        .expense-row {
+            background-color: #f8d7da; /* Light red */
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-2">
-    <a href="dashboard.php" class="btn btn-secondary mb-4">Back to Dashboard</a>
-    <div class="container mt-5">
+    <div class="container mt-4">
+        <!-- Back to Dashboard Button -->
+        <a href="dashboard.php" class="btn btn-secondary mb-4">Back to Dashboard</a>
+        
+        <!-- Display Error or Success Messages -->
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger">
+                <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+            </div>
+        <?php elseif (isset($_SESSION['message'])): ?>
+            <div class="alert alert-success">
+                <?php echo $_SESSION['message']; unset($_SESSION['message']); ?>
+            </div>
+        <?php endif; ?>
+        
         <h2>Transaction History</h2>
+
+        <!-- Filter Form -->
         <form method="POST" class="mb-4">
             <div class="row align-items-end">
                 <div class="col-md-3">
                     <label for="from_date" class="form-label">From Date</label>
-                    <input type="date" id="from_date" name="from_date" class="form-control" placeholder="From Date">
+                    <input type="date" id="from_date" name="from_date" class="form-control">
                 </div>
                 <div class="col-md-3">
                     <label for="to_date" class="form-label">To Date</label>
-                    <input type="date" id="to_date" name="to_date" class="form-control" placeholder="To Date">
+                    <input type="date" id="to_date" name="to_date" class="form-control">
                 </div>
-                <div class="col-md-2">
-                    <label for="type_id" class="form-label">Type</label>
-                    <select id="type_id" name="type_id" class="form-control">
-                        <option value="">All Types</option>
-                        <option value="1">Income</option>
-                        <option value="2">Expense</option>
+                <div class="col-md-3">
+                    <label for="transaction_type" class="form-label">Transaction Type</label>
+                    <select id="transaction_type" name="transaction_type" class="form-control">
+                        <option value="">All Transactions</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label for="category_id" class="form-label">Category</label>
-                    <select id="category_id" name="category_id" class="form-control">
-                        <option value="">All Categories</option>
-                        <?php while ($row = mysqli_fetch_assoc($categories)): ?>
-                            <option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
-                        <?php endwhile; ?>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label" style="visibility: hidden;">Filter</label>
+                <div class="col-md-3">
                     <button type="submit" class="btn btn-primary form-control">Filter</button>
                 </div>
             </div>
         </form>
 
+        <!-- Sorting Links -->
+        <div class="mb-3">
+            <a href="transaction_history.php?sort_order=asc" class="btn btn-info">Sort by Date (Ascending)</a>
+            <a href="transaction_history.php?sort_order=desc" class="btn btn-info">Sort by Date (Descending)</a>
+        </div>
+
+        <!-- Transaction Table -->
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Type</th>
                     <th>Category</th>
+                    <th>Transaction Type</th>
                     <th>Amount</th>
                     <th>Description</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php while ($row = mysqli_fetch_assoc($transactions)): ?>
-                    <tr>
-                        <td><?php echo $row['transaction_date']; ?></td>
-                        <td><?php echo $row['type_id'] == 1 ? 'Income' : 'Expense'; ?></td>
-                        <td><?php echo $row['category_name']; ?></td>
+                    <tr class="<?php echo $row['category'] == 'income' ? 'income-row' : 'expense-row'; ?>">
+                        <td><?php echo $row['date']; ?></td>
+                        <td><?php echo $row['type']; ?></td>
+                        <td><?php echo ucfirst($row['category']); ?></td> <!-- Shows "Income" or "Expense" -->
                         <td><?php echo $row['amount']; ?></td>
                         <td><?php echo $row['description']; ?></td>
+                        <td>
+                            <a href="transaction_history.php?delete_id=<?php echo $row['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this transaction?')">Delete</a>
+                        </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
@@ -122,3 +177,4 @@ $categories = mysqli_query($koneksi, "SELECT id, name FROM categories WHERE user
     </div>
 </body>
 </html>
+

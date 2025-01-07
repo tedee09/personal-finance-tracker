@@ -6,14 +6,14 @@ session_start();
 $login_error = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = mysqli_real_escape_string($koneksi, $_POST['email']);
-    $password = mysqli_real_escape_string($koneksi, $_POST['password']);
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-    // Validasi input
+    // Validasi input (jangan sampai kosong intinya)
     if (empty($email) || empty($password)) {
         $login_error = "Semua kolom harus diisi.";
     } else {
-        // Cari pengguna berdasarkan email
+        // Cari berdasarkan email
         $query = "SELECT * FROM users WHERE email = '$email'";
         $result = mysqli_query($koneksi, $query);
 
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user = mysqli_fetch_assoc($result);
 
             if (password_verify($password, $user['password_hash'])) {
-                // Simpan data ke session
+                // diSimpen data ke session
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 header("Location: dashboard.php");

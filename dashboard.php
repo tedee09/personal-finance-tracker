@@ -15,8 +15,8 @@ require_once 'db/db.php'; // Ensure you have the database connection
 $start_date = date('Y-m-d', strtotime('-1 month'));
 $end_date = date('Y-m-d');
 
-$total_income_query = mysqli_query($koneksi, "SELECT SUM(amount) as total_income FROM transactions WHERE user_id = $user_id AND type_id = 1 AND transaction_date BETWEEN '$start_date' AND '$end_date'");
-$total_expense_query = mysqli_query($koneksi, "SELECT SUM(amount) as total_expense FROM transactions WHERE user_id = $user_id AND type_id = 2 AND transaction_date BETWEEN '$start_date' AND '$end_date'");
+$total_income_query = mysqli_query($koneksi, "SELECT SUM(amount) as total_income FROM transactions WHERE category = 'income' AND date BETWEEN '$start_date' AND '$end_date'");
+$total_expense_query = mysqli_query($koneksi, "SELECT SUM(amount) as total_expense FROM transactions WHERE category = 'expense' AND date BETWEEN '$start_date' AND '$end_date'");
 
 if (!$total_income_query || !$total_expense_query) {
     die('Query Error: ' . mysqli_error($koneksi));
@@ -25,6 +25,7 @@ if (!$total_income_query || !$total_expense_query) {
 $total_income = mysqli_fetch_assoc($total_income_query)['total_income'] ?? 0;
 $total_expense = mysqli_fetch_assoc($total_expense_query)['total_expense'] ?? 0;
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

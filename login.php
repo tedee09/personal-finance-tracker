@@ -25,7 +25,7 @@ require 'login_logic.php';
                     <div class="card-body">
                         <?php if (!empty($login_error)): ?>
                             <div class="alert alert-danger">
-                                <?php echo htmlspecialchars($login_error); ?>
+                                <?php echo $login_error; ?>
                             </div>
                         <?php endif; ?>
                         <?php if (isset($_GET['register']) && $_GET['register'] == 'success'): ?>
@@ -33,7 +33,7 @@ require 'login_logic.php';
                                 Registration successful! Please log in.
                             </div>
                         <?php endif; ?>
-                        <form method="POST" action="login.php">
+                        <form method="POST" action="login_logic.php">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" name="email" id="email" class="form-control" required>

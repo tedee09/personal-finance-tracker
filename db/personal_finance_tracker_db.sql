@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Dec 21, 2024 at 01:49 PM
+-- Host: localhost
+-- Generation Time: Jan 06, 2025 at 06:45 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -34,6 +34,14 @@ CREATE TABLE `categories` (
   `name` varchar(100) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`id`, `user_id`, `type_id`, `name`, `created_at`) VALUES
+(3, 1, 1, 'Salary', '2025-01-06 05:11:35'),
+(4, 1, 2, 'Investing', '2025-01-06 05:11:42');
 
 -- --------------------------------------------------------
 
@@ -77,14 +85,22 @@ CREATE TABLE `reports` (
 
 CREATE TABLE `transactions` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `category_id` int(11) DEFAULT NULL,
-  `type_id` int(11) NOT NULL,
-  `amount` decimal(10,2) NOT NULL,
+  `date` date NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `category` enum('income','expense') NOT NULL,
+  `amount` decimal(20,3) NOT NULL,
   `description` text DEFAULT NULL,
-  `transaction_date` date NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `category_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `transactions`
+--
+
+INSERT INTO `transactions` (`id`, `date`, `type`, `category`, `amount`, `description`, `category_id`) VALUES
+(8, '2025-01-05', 'Salary', 'income', 4500000.000, 'Gaji TDK', NULL),
+(9, '2025-01-06', 'Investing', 'expense', 2500000.000, 'Crypto', NULL),
+(10, '2025-01-06', 'Investing', 'expense', 2000000.000, 'Bisnis', NULL);
 
 -- --------------------------------------------------------
 
@@ -174,10 +190,7 @@ ALTER TABLE `reports`
 -- Indexes for table `transactions`
 --
 ALTER TABLE `transactions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `category_id` (`category_id`),
-  ADD KEY `type_id` (`type_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `transaction_types`
@@ -210,7 +223,7 @@ ALTER TABLE `visualizations`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `category_types`
@@ -228,7 +241,7 @@ ALTER TABLE `reports`
 -- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `transaction_types`
@@ -264,14 +277,6 @@ ALTER TABLE `categories`
 --
 ALTER TABLE `reports`
   ADD CONSTRAINT `reports_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `transactions`
---
-ALTER TABLE `transactions`
-  ADD CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `transactions_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `transactions_ibfk_3` FOREIGN KEY (`type_id`) REFERENCES `transaction_types` (`id`);
 
 --
 -- Constraints for table `visualizations`
