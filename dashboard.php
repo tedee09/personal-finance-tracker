@@ -11,6 +11,7 @@ $user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
 require_once 'db/db.php'; // Pastikan file koneksi database tersedia
 
+// Query untuk laporan bulanan
 $monthly_report_query = mysqli_query($koneksi, "
     SELECT 
         DATE_FORMAT(transaction_date, '%Y-%m') AS month, 
@@ -20,7 +21,6 @@ $monthly_report_query = mysqli_query($koneksi, "
     GROUP BY month
     ORDER BY month DESC
 ");
-
 
 if (!$monthly_report_query) {
     die('Query Error: ' . mysqli_error($koneksi));
