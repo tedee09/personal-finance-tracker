@@ -1,7 +1,3 @@
-## Petunjuk untuk github colaboration
-
-# https://youtu.be/GumqC3s6Trw?si=8s7yPfys7FIGzOdT
-
 ## Panduan untuk menjalankan program
 
 Ikuti langkah-langkah berikut untuk menjalankan proyek ini di lingkungan lokal Anda:
